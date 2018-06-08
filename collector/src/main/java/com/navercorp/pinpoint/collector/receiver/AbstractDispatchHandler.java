@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,18 +51,38 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
         // TODO consider to change dispatch table automatically
         List<SimpleHandler> simpleHandlerList = getSimpleHandler(tBase);
-        if (!CollectionUtils.isEmpty(simpleHandlerList)) {
-            for (SimpleHandler simpleHandler : simpleHandlerList) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
-                }
-                simpleHandler.handleSimple(tBase);
-            }
-        }
-
         if (CollectionUtils.isEmpty(simpleHandlerList)) {
             throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
         }
+
+        for (SimpleHandler simpleHandler : simpleHandlerList) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
+            }
+            simpleHandler.handleSimple(tBase);
+        }
+    }
+
+    @Override
+    public void dispatchSendMessage(ServerRequest serverRequest) {
+
+        // mark accepted time
+        acceptedTimeService.accept();
+
+        // TODO consider to change dispatch table automatically
+        List<SimpleHandler> simpleHandlerList = getSimpleHandler(serverRequest);
+        if (CollectionUtils.isEmpty(simpleHandlerList)) {
+            throw new UnsupportedOperationException("Handler not found. Unknown type of data received. serverRequest=" + serverRequest);
+        }
+
+        for (SimpleHandler simpleHandler : simpleHandlerList) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
+            }
+            simpleHandler.handleSimple(serverRequest);
+        }
+
+
     }
 
     public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
@@ -80,6 +101,10 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     }
 
     protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        return Collections.emptyList();
+    }
+
+    protected List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
         return Collections.emptyList();
     }
 

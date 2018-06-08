@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.EnumSet;
+
 /**
  * @author Roy Kim
  */
@@ -24,22 +26,45 @@ public enum OsType {
     WINDOW("Window"),
     MAC("Mac"),
     LINUX("Linux"),
-    SOLARIS("Solaris");
+    SOLARIS("Solaris"),
+    AIX("AIX"),
+    HP_UX("HP-UX"),
+    BSD("BSD");
+
+    public String getInclusiveString() {
+        return inclusiveString;
+    }
 
     private final String inclusiveString;
 
+    private static EnumSet<OsType> OS_TYPE = EnumSet.allOf(OsType.class);
+
     OsType(String inclusiveString) {
         this.inclusiveString = inclusiveString;
+    }
+
+    public static OsType fromVendor(String vendorName) {
+        if (vendorName == null) {
+            return UNKNOWN;
+        }
+        final String vendorNameTrimmed = vendorName.trim();
+        for (OsType osType : OS_TYPE) {
+            if (osType.toString().equalsIgnoreCase(vendorNameTrimmed)) {
+                return osType;
+            }
+        }
+        return UNKNOWN;
     }
 
     public static OsType fromOsName(String osName) {
         if (osName == null) {
             return UNKNOWN;
         }
-        for (OsType osType : OsType.values()) {
+        for (OsType osType : OS_TYPE) {
             if (osType.inclusiveString == null) {
                 continue;
-            } else if (osName.contains(osType.inclusiveString)) {
+            }
+            if (osName.toLowerCase().contains(osType.inclusiveString.toLowerCase())) {
                 return osType;
             }
         }

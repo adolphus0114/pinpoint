@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.bootstrap.classloader.LibClass;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.common.plugin.JarPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
@@ -27,14 +26,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.ReflectionUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.Collections;
+import java.util.List;
 import java.util.jar.JarFile;
 
 /**
@@ -71,20 +69,11 @@ public class JarProfilerPluginClassInjectorTest {
         final ClassLoader classLoader = this.getClass().getClassLoader();
         final Class<ClassLoader> aClass = (Class<ClassLoader>) classLoader.loadClass(CONTEXT_TYPE_MATCH_CLASS_LOADER);
         final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
-        ReflectionUtils.makeAccessible(constructor);
+        constructor.setAccessible(true);
 
-        final LibClass libClassFilter = new LibClass() {
-            @Override
-            public boolean onLoadClass(String clazzName) {
-                if (clazzName.startsWith(LOG4_IMPL)) {
-                    logger.debug("Loading {}", clazzName);
-                    return ON_LOAD_CLASS;
-                }
-                return DELEGATE_PARENT;
-            }
-        };
+        List<String> lib = Collections.singletonList(LOG4_IMPL);
 
-        URLClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
+        ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
         final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
         logger.debug("cl:{}",contextTypeMatchClassLoader);

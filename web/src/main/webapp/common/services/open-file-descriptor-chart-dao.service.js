@@ -17,7 +17,7 @@
 				var refinedChartData = {
 					data: [],
 					empty: false,
-					forceMax: true,
+					forceMax: false,
 					defaultMax: 100
 				};
 				if ( len === 0 ) {
@@ -28,7 +28,7 @@
 						time: moment(aX[i]).format( cfg.dateFormat )
 					};
 					if ( len > i ) {
-						thisData["count"] = pointsOpenFileDescriptor[i][1] === -1 ? null : pointsOpenFileDescriptor[i][1].toFixed(2);
+						thisData["count"] = pointsOpenFileDescriptor[i][2] === -1 ? null : pointsOpenFileDescriptor[i][2].toFixed(2);
 					}
 					refinedChartData.data.push(thisData);
 				}
@@ -52,7 +52,6 @@
 							"axisAlpha": 1,
 							"position": "left",
 							"title": "File Descriptor(count)",
-							"maximum" : 100,
 							"minimum" : 0,
 							"labelFunction": function(value) {
 								return value;

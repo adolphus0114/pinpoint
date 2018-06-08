@@ -103,6 +103,8 @@ public interface ProfilerConfig {
 
     String getProfilerJvmVendorName();
 
+    String getProfilerOSName();
+
     int getProfileJvmStatCollectIntervalMs();
 
     int getProfileJvmStatBatchSendCount();
@@ -141,6 +143,8 @@ public interface ProfilerConfig {
     List<String> getHttpStatusCodeErrors();
 
     String getInjectionModuleFactoryClazzName();
+
+    String getApplicationNamespace();
 
     String readString(String propertyName, String defaultValue);
 

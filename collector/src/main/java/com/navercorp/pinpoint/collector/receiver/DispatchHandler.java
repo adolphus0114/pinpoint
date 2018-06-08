@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 
 /**
@@ -27,6 +28,8 @@ public interface DispatchHandler {
     // Separating Send and Request. That dose not be satisfied but try to change that later.
 
     void dispatchSendMessage(TBase<?, ?> tBase);
+
+    void dispatchSendMessage(ServerRequest serverRequest);
 
     TBase dispatchRequestMessage(TBase<?, ?> tBase);
 
